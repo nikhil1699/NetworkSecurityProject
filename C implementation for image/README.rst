@@ -1,7 +1,7 @@
 
 Compilation & Installation
 ==========================
-This implementation has only been tested on Unix platform. But you may be able to compile/ run it on Windows.
+
 
 1. Make sure des.c, des.h and run_des.c are in the same directory 
 2. Compile using: gcc -O3 des.c run_des.c -o run_des.o   
