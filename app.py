@@ -1,6 +1,8 @@
 from flask import Flask, render_template, request
 from Crypto_Examples.DES import run_des
-
+from Crypto_Examples.AES import AES
+from Crypto_Examples.RSA import RSA
+from Crypto_Examples.MD5 import MD5
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
@@ -94,11 +96,93 @@ def des_page():
         return render_template('page_des.html')
 
 
+# Display data from AES calculations:
+@app.route('/aes/', methods=['POST', 'GET'])
+def aes_page():
+    if request.method == 'POST':
+        message = request.form['message']
+        key = request.form['key']
+
+        # Errors:
+        # 1 - empty message or key field
+        # 2 - key is not hex value
+        # 3 - message is not hex value
+
+        if message or key is not None:
+
+            if not is_hex(key):
+                return render_template('page_aes.html', error_no='2')
+            elif not is_hex(message):
+                return render_template('page_aes.html', error_no='3')
+            else:
+                message = fixed_len_hex(message)
+                key = fixed_len_hex(key)
+                aes = AES()
+                aes_data = aes.do_rounds(message=get_hex_array(message), key=get_hex_array(key))
+                return render_template('page_aes.html', message=message, key=key, data=aes_data)
+        else:
+            return render_template('page_aes.html', error_no='1')
+    else:
+        return render_template('page_aes.html')
 
 
+# Display data from DES calculations:
+@app.route('/rsa/', methods=['POST', 'GET'])
+def rsa_page():
+    if request.method == 'POST':
+        message = int(request.form['message'])
+        e = int(request.form['e'])
+        p = int(request.form['p'])
+        q = int(request.form['q'])
+
+        # Errors:
+        # 1 - empty value
+        # 2 - numbers are not prime
+        # 3 - e is not relatively prime to (p-1)*(q-1)
+
+        if message and e and p and q is not None:
+            rsa = RSA()
+            # Check for primeness and relative primeness:
+            if not rsa.is_prime(p):  # is_hex(e):
+                return render_template('page_rsa.html', error_no='2', number=p)
+            elif not rsa.is_prime(q):
+                return render_template('page_rsa.html', error_no='2', number=q)
+            else:
+                if not rsa.is_relatively_prime(e, (p - 1) * (q - 1)):
+                    return render_template('page_rsa.html', error_no='3', number=e)
+                else:
+                    action = request.form['action_options']
+                    print(action)
+
+                    return render_template('page_rsa.html', message=message, p=p, q=q, e=e,
+                                           rsa=rsa.do_rsa(message, p, q, e, action))
+        else:
+            return render_template('page_rsa.html', error_no='1')
+    else:
+        return render_template('page_rsa.html')
 
 
+@app.route('/md5/', methods=['POST', 'GET'])
+def md5_page():
+    if request.method == 'POST':
+        message = request.form['message']
+        action = request.form['action_options']
 
+        # Errors:
+        # 1 - empty value
+
+        # if message is not None:
+        hash = MD5().get_md5_hash(message)
+        if action == 'all_steps':
+            return render_template('page_md5.html', message=message, hash=hash['hash'], show_all=True,
+                                   operations_data=hash)
+        else:
+            return render_template('page_md5.html', message=message, hash=hash['hash'])
+
+    # else:
+    #   return render_template('page_md5.html', error_no='1')
+    else:
+        return render_template('page_md5.html')
 
 
 if __name__ == '__main__':
