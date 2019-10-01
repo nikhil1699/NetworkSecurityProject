@@ -7,8 +7,8 @@ from Crypto_Examples.MD5 import MD5
 app = Flask(__name__, template_folder='templates', static_folder='static')
 
 
-# Check if entered value is hex:
 def is_hex(string):
+    """Check if entered value is hex:"""
     try:
         int(string, 16)
         return True
@@ -16,8 +16,9 @@ def is_hex(string):
         return False
 
 
-# Get hex value from entered string
+
 def get_hex(text):
+    """Get hex value from entered string"""
     text_byte_array = list(map(bin, bytearray(text, encoding='utf-8')))
     text_byte_array_string = ''.join([foo[2:] for foo in text_byte_array])
     return str(hex(int(text_byte_array_string, 2))[2:].upper())
@@ -31,15 +32,15 @@ def fixed_len_hex(string):
     return '{0:#034x}'.format(int(string, 16))[2:]
 
 
-# Display Home page:
 @app.route('/')
 def load_home_page():
+    """Display Home page:"""
     return render_template('index.html')
 
 
-# Display data from DES calculations:
 @app.route('/des/', methods=['POST', 'GET'])
 def des_page():
+    """Display data from DES calculations:"""
     if request.method == 'POST':
         message = request.form['message']
         key = request.form['key']
@@ -96,9 +97,10 @@ def des_page():
         return render_template('page_des.html')
 
 
-# Display data from AES calculations:
+
 @app.route('/aes/', methods=['POST', 'GET'])
 def aes_page():
+    """Display data from AES calculations:"""
     if request.method == 'POST':
         message = request.form['message']
         key = request.form['key']
@@ -126,9 +128,10 @@ def aes_page():
         return render_template('page_aes.html')
 
 
-# Display data from DES calculations:
+
 @app.route('/rsa/', methods=['POST', 'GET'])
 def rsa_page():
+    """Display data from DES calculations:"""
     if request.method == 'POST':
         message = int(request.form['message'])
         e = int(request.form['e'])
